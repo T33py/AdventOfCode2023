@@ -1,18 +1,17 @@
 def main():
 	i = read_input('input1.txt')
-	[times, distances] = format_input(i)
+	[time, distance] = format_input(i)
 
-	possible_wins = []
-	for race in range(len(times)):
-		ways_to_win = find_ways_to_win(times[race], distances[race])
-		possible_wins.append(len(ways_to_win))
-		print(f'race {race} has wins: {ways_to_win}')
+	print(f'{time} | {distance}')
+	ways_to_win = find_ways_to_win(time, distance)
 
-	return product(possible_wins)
+	return len(ways_to_win)
 
 def find_ways_to_win(time, dist):
 	wins = []
 	for t in range(time):
+		if t % 1000000 == 0:
+			print(t)
 		my_dist = t * (time - t)
 		if (my_dist > dist):
 			wins.append(my_dist)
@@ -26,9 +25,10 @@ def product(ls:list):
 
 def format_input(i:str):
 	[times, dists] = i.split('\n')
-	ts = [int(t) for t in times.split(':')[1].split(' ') if t != '']
-	ds = [int(d) for d in dists.split(':')[1].split(' ') if d != '']
-	return [ts, ds]
+	ts = [str(t) for t in times.split(':')[1].split(' ') if t != '']
+	ds = [str(d) for d in dists.split(':')[1].split(' ') if d != '']
+	
+	return [int(''.join(ts)), int(''.join(ds))]
 
 def read_input(file: str):
 	i = ''
