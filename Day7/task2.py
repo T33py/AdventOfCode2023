@@ -1,6 +1,6 @@
 from functools import cmp_to_key
 
-card_strengths = ['A', 'K', 'Q', 'J', 'T', '9', '8', '7', '6', '5', '4', '3', '2']
+card_strengths = ['A', 'K', 'Q', 'T', '9', '8', '7', '6', '5', '4', '3', '2', 'J']
 hand_strengths = ['5ok', '4ok', 'fh', '3ok', '2p', '1p', 'hc']
 # reverse to get indexes to match gt/lt comparisons with hand/cardstrengths
 card_strengths.reverse()
@@ -24,7 +24,10 @@ def main():
 	winnings = []
 	for i in range(len(sorted_hands)):
 		winnings.append((i+1) * bids[sorted_hands[i]])
-	print(winnings)
+	# print(winnings)
+
+	for hand in sorted_hands:
+		print(f'{hand}: {hand_strength(hand)}')
 
 	return sum(winnings)
 
@@ -35,9 +38,10 @@ def sort_hands(hands): # sort hands by ascending strength
 	# print(hands_by_str)
 	
 	for hand in hands:
+		# print(f'h: {hand}')
 		hands_by_str[hand_strength(hand)].append(hand)
 
-	# print(hands_by_str)
+	print(hands_by_str)
 	sorted_hands = []
 	for hand_str in hands_by_str:
 		hands_of_str:list = hands_by_str[hand_str]
@@ -64,14 +68,19 @@ def by_best_card(hand1:str, hand2:str):
 
 def hand_strength(cards):
 	card_counts = {}
+	J_count = 0
 	max_count = 0 
 	for card in cards:
 		if not card in card_counts:
 			card_counts[card] = 0
 		card_counts[card] += 1
-		if card_counts[card] > max_count:
+		if card_counts[card] > max_count and card != 'J':
 			max_count = card_counts[card]
+		if card == 'J':
+			J_count += 1
 	
+	# print(f'max_count: {max_count}, j_count: {J_count}')
+	max_count += J_count
 	strength = ''
 	if max_count == 1:
 		strength = 'hc'
@@ -85,8 +94,17 @@ def hand_strength(cards):
 			strength = '2p'
 	elif max_count == 3: # 3 of a kind is either 3ok or full house
 		strength = '3ok'
-		if len(card_counts.keys()) == 2: # 3ok and 2 ok == house
+		# possible patterns for fh
+		#    22233
+		#    22J33
+		#    2JJ33
+		# bad patterns for fh
+		#    2J344
+		if len(card_counts) == 2: # is 100% fh
 			strength = 'fh'
+		elif len(card_counts) == 3 and 'J' in card_counts: # Must be house since only 2 kinds thats not J exists
+			strength = 'fh'
+			
 	elif max_count == 4:
 		strength = '4ok'
 	elif max_count == 5:
